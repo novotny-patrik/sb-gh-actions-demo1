@@ -3,7 +3,7 @@ name: Registration Latest (macOS 14, Brave)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 1/12 * * *'
+    - cron: '0 0/12 * * *'
 
 jobs:
   registration-latest-macos-14-brave:

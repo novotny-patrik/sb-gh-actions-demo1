@@ -3,7 +3,7 @@ name: Registration Latest (Ubuntu 22.04, Chrome)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 4/12 * * *'
+    - cron: '30 1/12 * * *'
 
 jobs:
   registration-latest-ubuntu-22-chrome:

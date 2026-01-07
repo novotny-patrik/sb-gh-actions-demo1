@@ -3,7 +3,7 @@ name: Registration Latest (Windows 2019, Brave)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 7/12 * * *'
+    - cron: '0 3/12 * * *'
 
 jobs:
   registration-latest-windows-2019-brave:

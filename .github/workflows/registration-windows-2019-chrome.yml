@@ -3,7 +3,7 @@ name: Registration Latest (Windows 2019, Chrome)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 8/12 * * *'
+    - cron: '30 3/12 * * *'
 
 jobs:
   registration-latest-windows-2019-chrome:

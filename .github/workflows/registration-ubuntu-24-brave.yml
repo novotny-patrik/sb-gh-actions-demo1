@@ -3,7 +3,7 @@ name: Registration Latest (Ubuntu 24.04, Brave)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 5/12 * * *'
+    - cron: '0 2/12 * * *'
 
 jobs:
   registration-latest-ubuntu-24-brave:

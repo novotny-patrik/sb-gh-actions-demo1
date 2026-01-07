@@ -3,7 +3,7 @@ name: Registration Latest (macOS 14, Chrome)
 on:
   workflow_dispatch:
   schedule:
-    - cron: '0 2/12 * * *'
+    - cron: '30 0/12 * * *'
 
 jobs:
   registration-latest-macos-14-chrome:
