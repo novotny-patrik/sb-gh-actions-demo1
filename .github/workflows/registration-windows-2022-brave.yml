@@ -1,0 +1,61 @@
+name: Registration Latest (Windows 2022, Brave)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 9/12 * * *'
+
+jobs:
+  registration-latest-windows-2022-brave:
+    concurrency:
+      group: registration-latest-windows-2022-brave
+      cancel-in-progress: false
+    runs-on: windows-2022
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v4
+        with:
+          repository: novotny-patrik/seleniumbase-gh-actions
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          path: private-repo
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: "private-repo/requirements.txt"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r private-repo/requirements.txt
+      - name: Install browser
+        shell: pwsh
+        run: |
+          $browser = "brave"
+          $hasWinget = Get-Command winget -ErrorAction SilentlyContinue
+          $hasChoco = Get-Command choco -ErrorAction SilentlyContinue
+          if ($hasWinget) {
+            winget install --id BraveSoftware.BraveBrowser --silent --accept-package-agreements --accept-source-agreements
+          } elseif ($hasChoco) {
+            choco install -y brave
+          } else {
+            throw "Neither winget nor choco is available to install $browser."
+          }
+      - name: Install WebDriver
+        run: |
+          seleniumbase install chromedriver
+      - name: Run registration latest
+        env:
+          SB_BROWSER: brave
+          SB_HEADLESS: "1"
+        run: |
+          python private-repo/tests/r.py
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: registration-latest-windows-2022-brave-latest-screenshots
+          path: private-repo/downloaded_files/*.png
+          if-no-files-found: ignore
+
+

@@ -1,0 +1,56 @@
+name: Registration Latest (Ubuntu 24.04, Brave)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 5/12 * * *'
+
+jobs:
+  registration-latest-ubuntu-24-brave:
+    concurrency:
+      group: registration-latest-ubuntu-24-brave
+      cancel-in-progress: false
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v4
+        with:
+          repository: novotny-patrik/seleniumbase-gh-actions
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          path: private-repo
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: "private-repo/requirements.txt"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r private-repo/requirements.txt
+      - name: Install Brave
+        run: |
+          sudo apt update
+          sudo apt install -y curl
+          sudo curl -fsSLo /usr/share/keyrings/brave-browser-archive-keyring.gpg https://brave-browser-apt-release.s3.brave.com/brave-browser-archive-keyring.gpg
+          echo "deb [signed-by=/usr/share/keyrings/brave-browser-archive-keyring.gpg] https://brave-browser-apt-release.s3.brave.com/ stable main" | sudo tee /etc/apt/sources.list.d/brave-browser-release.list
+          sudo apt update
+          sudo apt install -y brave-browser
+      - name: Install WebDriver
+        run: |
+          seleniumbase install chromedriver
+      - name: Run registration latest
+        env:
+          SB_BROWSER: brave
+          SB_HEADLESS: "1"
+        run: |
+          python private-repo/tests/r.py
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: registration-latest-ubuntu-24-brave-latest-screenshots
+          path: private-repo/downloaded_files/*.png
+          if-no-files-found: ignore
+
+

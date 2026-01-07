@@ -1,0 +1,57 @@
+name: Registration Latest (Ubuntu 22.04, Chrome)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 4/12 * * *'
+
+jobs:
+  registration-latest-ubuntu-22-chrome:
+    concurrency:
+      group: registration-latest-ubuntu-22-chrome
+      cancel-in-progress: false
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v4
+        with:
+          repository: novotny-patrik/seleniumbase-gh-actions
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          path: private-repo
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: "private-repo/requirements.txt"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r private-repo/requirements.txt
+      - name: Set up Chrome
+        uses: browser-actions/setup-chrome@v2
+        id: setup_chrome
+        with:
+          chrome-version: latest
+          install-dependencies: true
+      - name: Install WebDriver
+        run: |
+          seleniumbase install chromedriver latest
+          seleniumbase install uc_driver latest
+      - name: Registration
+        env:
+          SB_BROWSER: chrome
+          SB_HEADLESS: "1"
+          SB_DRIVER_VERSION: latest
+          SB_CHROME_BINARY: ${{ steps.setup_chrome.outputs.chrome-path }}
+        run: |
+          python private-repo/tests/r.py
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: registration-latest-ubuntu-22-chrome-screenshots
+          path: private-repo/downloaded_files/*.png
+          if-no-files-found: ignore
+
+

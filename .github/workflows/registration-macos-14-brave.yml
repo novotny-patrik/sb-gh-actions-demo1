@@ -1,0 +1,51 @@
+name: Registration Latest (macOS 14, Brave)
+
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: '0 1/12 * * *'
+
+jobs:
+  registration-latest-macos-14-brave:
+    concurrency:
+      group: registration-latest-macos-14-brave
+      cancel-in-progress: false
+    runs-on: macos-14
+    steps:
+      - name: Checkout private repo
+        uses: actions/checkout@v4
+        with:
+          repository: novotny-patrik/seleniumbase-gh-actions
+          token: ${{ secrets.PRIVATE_REPO_PAT }}
+          path: private-repo
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: "pip"
+          cache-dependency-path: "private-repo/requirements.txt"
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r private-repo/requirements.txt
+      - name: Install Brave
+        run: |
+          brew install --cask brave-browser
+      - name: Install WebDriver
+        run: |
+          seleniumbase install chromedriver
+      - name: Run registration latest
+        env:
+          SB_BROWSER: brave
+          SB_HEADLESS: "1"
+        run: |
+          python private-repo/tests/r.py
+      - name: Upload screenshots
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: registration-latest-macos-14-brave-latest-screenshots
+          path: private-repo/downloaded_files/*.png
+          if-no-files-found: ignore
+
+
