@@ -17,6 +17,7 @@ jobs:
         with:
           repository: novotny-patrik/seleniumbase-gh-actions
           token: ${{ secrets.PRIVATE_REPO_PAT }}
+          persist-credentials: false
           path: private-repo
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -52,5 +53,7 @@ jobs:
           name: registration-latest-ubuntu-22-brave-latest-screenshots
           path: private-repo/downloaded_files/*.png
           if-no-files-found: ignore
+
+
 
 
